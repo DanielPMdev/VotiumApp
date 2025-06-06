@@ -50,11 +50,9 @@ Votium/
 ### 1️⃣ Clonar el Repositorio
 
 ```bash
-git clone https://github.com/usuario/Votium.git
+git clone https://github.com/DanielPMdev/VotiumApp.git
 cd Votium
 ```
-
-> ⚠️ Cambia la URL de clonación cuando subas tu repositorio
 
 ---
 

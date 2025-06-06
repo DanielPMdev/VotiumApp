@@ -141,8 +141,8 @@ mvn spring-boot:run
 
 ## 🔓 Endpoints Públicos
 
-- `/auth/login` – Autenticación de usuario
-- `/auth/register` – Registro de nuevo usuario
+- `/login` – Autenticación de usuario
+- `/register` – Registro de nuevo usuario
 - `/` – Página de inicio
 - `/portfolio` – Página personal
 

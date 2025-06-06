@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Votium - Estadísticas del Evento</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="/img/votium.ico">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link th:href="@{/css/styles.css}" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+<!-- Navbar -->
+<nav th:insert="~{nav :: miNav}"></nav>
+
+<!-- Stats Section -->
+<section class="flex-fill py-5">
+  <div class="container">
+    <h2 class="text-center mb-4">Estadísticas del Evento</h2>
+    <div class="text-center mb-4">
+      <a th:href="@{/event/{id}(id=${event.id})}" class="btn btn-warning btn-sm mt-2 text-dark fw-bold btn-thick-border">Volver a Detalles del Evento</a>
+    </div>
+    <div th:if="${error}" class="alert alert-danger text-center" th:text="${error}"></div>
+
+    <!-- Total Bets -->
+    <div th:if="${totalBets != null}" class="row justify-content-center mb-5">
+      <div class="col-md-6">
+        <div class="card shadow-sm h-100 text-center">
+          <div class="card-body">
+            <h5 class="card-title text-primary">Número Total de Apuestas</h5>
+            <p class="card-text display-4" th:text="${totalBets}">0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Most Popular Market and Option -->
+    <div class="row justify-content-center mb-5">
+      <!-- Most Popular Market -->
+      <div th:if="${mostPopularMarket != null}" class="col-md-6">
+        <div class="card shadow-sm h-100 text-center">
+          <div class="card-body">
+            <h5 class="card-title text-success">Mercado Más Popular</h5>
+            <p class="card-text display-6" th:text="${mostPopularMarket.question}">Sin mercado</p>
+            <!-- <p class="card-text text-muted" th:text="${marketBetDistributions.get(mostPopularMarket) != null ? marketBetDistributions.get(mostPopularMarket).values().stream().sum() + ' apuestas' : '0 apuestas'}">0 apuestas</p> -->
+          </div>
+        </div>
+      </div>
+      <!-- Most Popular Option -->
+      <div th:if="${mostPopularOption != null}" class="col-md-6">
+        <div class="card shadow-sm h-100 text-center">
+          <div class="card-body">
+            <h5 class="card-title text-success">Opción Más Votada</h5>
+            <p class="card-text display-6" th:text="${mostPopularOption.text}">Sin opción</p>
+            <!-- <p class="card-text text-muted" th:text="${optionBetDistributions.get(mostPopularOption) != null ? optionBetDistributions.get(mostPopularOption).values().stream().sum() + ' apuestas' : '0 apuestas'}">0 apuestas</p> -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Ranking -->
+    <div th:if="${userRanking != null and not #lists.isEmpty(userRanking)}" class="mb-5">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title text-center">Ranking de Usuarios por Aciertos</h5>
+          <table class="table table-striped">
+            <thead>
+            <tr>
+              <th scope="col">Usuario</th>
+              <th scope="col">Apuestas Totales</th>
+              <th scope="col">Aciertos</th>
+              <th scope="col">% de Aciertos</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${userRanking}">
+              <td th:text="${user.username}">Usuario</td>
+              <td th:text="${user.totalBets}">0</td>
+              <td th:text="${user.correctBets}">0</td>
+              <td th:text="${user.winPercentage != null} ? ${#numbers.formatDecimal(user.winPercentage, 1, 2) + '%'} : '0,00%'">0,00%</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bet Distribution by Market -->
+    <div th:if="${marketBetDistributions != null and not #maps.isEmpty(marketBetDistributions)}" class="mb-5">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title text-center">Distribución de Apuestas por Mercado</h5>
+          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center">
+            <div th:each="marketEntry, iterStat : ${marketBetDistributions.entrySet()}" class="col">
+              <div class="card shadow-sm h-100" style="max-width: 100%;">
+                <div class="card-body text-center">
+                  <h6 class="card-title" th:text="${marketEntry.key}">Mercado</h6>
+                  <!-- Mostrar canvas y mensaje "No data", solo uno estará visible -->
+                  <canvas th:id="'marketChart' + ${iterStat.index}" style="width: 100%; height: auto;"></canvas>
+                  <div th:id="'noData' + ${iterStat.index}" class="text-muted mt-5" style="display: none;">
+                    No data
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- If no stats -->
+    <div th:unless="${totalBets != null or mostPopularMarket != null or (userRanking != null and not #lists.isEmpty(userRanking)) or (marketBetDistributions != null and not #maps.isEmpty(marketBetDistributions))}" class="text-center">
+      <p class="text-muted">No hay estadísticas disponibles para este evento.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer th:insert="~{footer :: miFooter}"></footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Chart.js Script -->
+<script th:inline="javascript">
+  document.addEventListener('DOMContentLoaded', function () {
+    const marketDistributions = /*[[${marketBetDistributions}]]*/ {};
+
+    Object.entries(marketDistributions).forEach(([marketName, optionsMap], index) => {
+      const values = Object.values(optionsMap || {});
+      const hasVotes = values.some(v => v > 0);
+
+      const canvas = document.getElementById('marketChart' + index);
+      const noDataDiv = document.getElementById('noData' + index);
+
+      if (!hasVotes) {
+        if (canvas) canvas.style.display = 'none';
+        if (noDataDiv) noDataDiv.style.display = 'block';
+        return;
+      }
+
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+
+      new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: Object.keys(optionsMap),
+          datasets: [{
+            label: 'Apuestas por Opción',
+            data: values,
+            backgroundColor: [
+              'rgba(40, 167, 69, 0.7)',
+              'rgba(220, 53, 69, 0.7)',
+              'rgba(255, 193, 7, 0.7)',
+              'rgba(0, 123, 255, 0.7)',
+              'rgba(111, 66, 193, 0.7)'
+            ],
+            borderColor: [
+              'rgba(40, 167, 69, 1)',
+              'rgba(220, 53, 69, 1)',
+              'rgba(255, 193, 7, 1)',
+              'rgba(0, 123, 255, 1)',
+              'rgba(111, 66, 193, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

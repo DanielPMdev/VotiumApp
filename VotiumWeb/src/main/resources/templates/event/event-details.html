@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votium - Detalles del Evento</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/img/votium.ico">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+<!-- Navbar -->
+<nav th:insert="~{nav :: miNav}"></nav>
+
+<!-- Event Details Section -->
+<section class="flex-fill py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-11 col-sm-10 col-md-10 col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4 p-md-5">
+                        <h2 class="text-center mb-4">Detalles del Evento</h2>
+                        <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+                        <div th:if="${success}" class="alert alert-success" role="alert" th:text="${success}"></div>
+
+                        <!-- Check if event exists -->
+                        <div th:if="${event != null}">
+                            <!-- Form for editable event data -->
+                            <form th:action="@{/event/{id}(id=${event.id})}" method="post" th:object="${event}">
+                                <div class="row">
+                                    <!-- Image and basic data -->
+                                    <div class="col-md-4 text-center">
+                                        <img th:src="${event.urlImage}" th:unless="${event.urlImage == null}"
+                                             alt="Imagen del evento" class="img-fluid rounded mb-3"
+                                             style="max-width: 200px;"/>
+                                        <p th:if="${event.urlImage == null}" class="text-muted">No hay imagen disponible</p>
+                                        <div th:unless="${editing}">
+                                            <h4 th:text="${event.title}">Título</h4>
+                                            <a th:href="@{/event/{id}(id=${event.id}, editing=true)}"
+                                               class="btn btn-outline-warning btn-sm mt-2 text-dark fw-bold"
+                                               th:if="${permisions}">Editar Evento
+                                            </a>
+                                            <a th:href="@{/event/{id}/stats(id=${event.id})}"
+                                               class="btn btn-outline-warning btn-sm mt-2 text-dark fw-bold"
+                                               th:if="${isEventClosed}">Ver Estadísticas
+                                            </a>
+                                        </div>
+                                        <div th:if="${editing}">
+                                            <input type="text" th:field="*{title}" class="form-control mb-2"
+                                                   placeholder="Título" required/>
+                                            <a th:href="@{/event/{id}(id=${event.id})}"
+                                               class="btn btn-outline-secondary btn-sm mt-2">Cancelar</a>
+                                        </div>
+                                    </div>
+
+                                    <!-- Detailed information -->
+                                    <div class="col-md-8">
+                                        <dl class="row">
+                                            <dt class="col-sm-4">Descripción:</dt>
+                                            <dd class="col-sm-8" th:unless="${editing}"
+                                                th:text="${event.description ?: 'Sin descripción'}"></dd>
+                                            <dd class="col-sm-8" th:if="${editing}">
+                                                <textarea th:field="*{description}" class="form-control"
+                                                          rows="3"></textarea>
+                                            </dd>
+
+                                            <dt class="col-sm-4">Fecha de Creación:</dt>
+                                            <dd class="col-sm-8" th:unless="${editing}"
+                                                th:text="${#temporals.format(event.createdAt, 'dd/MM/yyyy')}">
+                                            </dd>
+
+                                            <dd class="col-sm-8" th:if="${editing}">
+                                                <!-- Muestra la fecha al usuario (deshabilitado o en un <span>) -->
+                                                <input type="date" id="createdAtVisible" class="form-control mb-2" disabled th:value="${#temporals.format(event.createdAt, 'yyyy-MM-dd')}"/>
+
+                                                <!-- Campo oculto para enviar el valor real -->
+                                                <input type="hidden" th:field="*{createdAt}"/>
+                                            </dd>
+
+                                            <dt class="col-sm-4">Fecha de Cierre:</dt>
+
+                                            <!-- Modo no edición: mostrar fecha y hora separados -->
+                                            <dd class="col-sm-8" th:unless="${editing}">
+                                                <span th:text="${event.closedAt != null ? #temporals.format(event.closedAt, 'dd/MM/yyyy') : 'No especificada'}"></span>
+                                                <span th:if="${event.closedAt != null}"> &nbsp;⏰ <span th:text="${#temporals.format(event.closedAt, 'HH:mm')}"></span></span>
+                                            </dd>
+
+                                            <!-- Modo edición: dos inputs separados para fecha y hora -->
+                                            <dd class="col-sm-8" th:if="${editing}">
+                                                <div class="mb-2">
+                                                    <label for="closedAtDate" class="form-label">Fecha</label>
+                                                    <input type="date" id="closedAtDate" name="closedAtDate" class="form-control"
+                                                           th:value="${event.closedAt != null ? #temporals.format(event.closedAt, 'yyyy-MM-dd') : ''}"
+                                                           th:disabled="${event.closedEvent}" required />
+                                                </div>
+                                                <div>
+                                                    <label for="closedAtTime" class="form-label">Hora</label>
+                                                    <input type="time" id="closedAtTime" name="closedAtTime" class="form-control"
+                                                           th:value="${event.closedAt != null ? #temporals.format(event.closedAt, 'HH:mm') : ''}"
+                                                           th:disabled="${event.closedEvent}" required />
+                                                </div>
+                                            </dd>
+
+                                            <dt class="col-sm-4">Estado:</dt>
+                                            <dd class="col-sm-8"
+                                                th:class="${event.closedEvent} ? 'text-danger col-sm-8 fw-bold' : 'text-success col-sm-8 fw-bold'"
+                                                th:text="${event.closedEvent} ? 'Cerrado' : 'Abierto'">
+                                            </dd>
+
+                                            <dt class="col-sm-4">URL Imagen:</dt>
+                                            <dd class="col-sm-8" th:unless="${editing}"
+                                                th:text="${event.urlImage ?: 'No especificada'}"
+                                                style="word-break: break-all;"></dd>
+                                            <dd class="col-sm-8" th:if="${editing}">
+                                                <input type="url" th:field="*{urlImage}" class="form-control"
+                                                       placeholder="https://example.com/image.jpg"/>
+                                            </dd>
+
+                                            <dt class="col-sm-4">Categoría:</dt>
+                                            <dd class="col-sm-8" th:unless="${editing}"
+                                                th:text="${event.category != null ? event.category.name : 'Sin categoría'}"></dd>
+                                            <dd class="col-sm-8" th:if="${editing}">
+                                                <select th:field="*{category.id}" class="form-control" required>
+                                                    <option value="">Selecciona una categoría</option>
+                                                    <option th:each="cat : ${categories}" th:value="${cat.id}"
+                                                            th:text="${cat.name}">
+                                                    </option>
+                                                </select>
+                                            </dd>
+
+                                            <dt class="col-sm-4">Creador:</dt>
+                                            <dd class="col-sm-8"
+                                                th:text="${event.user != null ? event.user.username : 'Sin creador asignado'}">
+                                            </dd>
+                                            <input type="hidden" th:field="*{user.id}"/>
+                                            <input type="hidden" th:field="*{user.username}"/>
+
+                                        </dl>
+
+                                        <!-- Markets section -->
+                                        <h5 class="mb-4">Mercados
+                                            <a th:href="@{/event/{id}/markets(id=${event.id})}"
+                                               th:text="${permisions} ? 'Gestionar Mercados' : 'Ver Mercados'"
+                                               class="btn btn-outline-warning btn-sm float-end text-dark fw-bold">
+                                                Gestionar Mercados
+                                            </a>
+                                        </h5>
+                                        <ul class="list-group" th:unless="${#lists.isEmpty(event.marketList)}">
+                                            <li class="list-group-item" th:each="market : ${event.marketList}"
+                                                th:text="${market.question}"></li>
+                                        </ul>
+                                        <p th:if="${#lists.isEmpty(event.marketList)}" class="text-muted">No hay
+                                            mercados registrados</p>
+
+                                        <!-- Dynamic market list for editing -->
+                                        <!--<div th:if="${editing}" class="mb-3">
+                                            <label class="form-label">Mercados</label>
+                                            <div id="marketListContainer">
+                                                &lt;!&ndash; Dynamic market entries will be added here &ndash;&gt;
+                                            </div>
+                                            <button type="button"
+                                                    class="btn btn-outline-warning btn-sm mt-2 text-dark fw-bold"
+                                                    id="addMarketBtn">Añadir Mercado
+                                            </button>
+                                        </div>-->
+                                    </div>
+                                </div>
+
+                                <!-- Buttons for navigation and saving -->
+                                <div class="text-center mt-4">
+                                    <a th:href="@{/events}" class="btn btn-outline-secondary me-2">Volver</a>
+                                    <button type="submit" th:if="${editing}" class="btn btn-warning text-dark fw-bold">
+                                        Guardar
+                                    </button>
+                                </div>
+                            </form>
+
+                            <!-- Separate delete and close forms -->
+                            <div class="text-center mt-3 d-flex justify-content-center gap-2" th:if="${permisions}">
+                                <!-- Botón Eliminar Evento -->
+                                <form th:action="@{/event/delete/{id}(id=${event.id})}" method="post">
+                                    <button type="button"
+                                            class="btn btn-danger"
+                                            th:data-title="'Eliminar Evento'"
+                                            th:data-message="'¿Estás seguro de que deseas eliminar este evento? Esta acción no se puede deshacer.'"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#dynamicModal"
+                                            th:data-action="@{/event/delete/{id}(id=${event.id})}">
+                                        Eliminar Evento
+                                    </button>
+                                </form>
+
+                                <!-- Botón Cerrar Evento -->
+                                <form th:action="@{/event/close/{id}(id=${event.id})}" method="post" class="d-flex justify-content-center">
+                                    <button type="button"
+                                            class="btn btn-dark"
+                                            th:unless="event.closedEvent"
+                                            th:data-title="'Cerrar Evento'"
+                                            th:data-message="'¿Estás seguro de que deseas cerrar este evento? Esta acción no se puede deshacer.'"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#dynamicModal"
+                                            th:data-action="@{/event/close/{id}(id=${event.id})}">
+                                        <i class="bi bi-lock-fill me-2"></i>Cerrar Evento
+                                    </button>
+                                </form>
+
+                                <!-- Si el evento ya está cerrado, muestra el botón deshabilitado con aviso -->
+                                <div class="d-flex justify-content-center">
+                                    <button type="button"
+                                            class="btn btn-dark disabled"
+                                            th:if="${event.closedEvent}"
+                                            onclick="mostrarToast('Este evento ya está cerrado.', 'bg-danger')"
+                                            style="pointer-events: auto; opacity: 0.65; cursor: not-allowed;">
+                                        Cerrar Evento
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- If no event data -->
+                        <div th:unless="${event != null}" class="text-center">
+                            <p class="text-muted">No se encontraron detalles del evento.</p>
+                            <div class="text-center mt-4">
+                                <a th:href="@{/events}" class="btn btn-outline-secondary">Volver</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal for confirm-->
+<div class="modal fade" id="dynamicModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="dynamicModalLabel">Confirmar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" id="dynamicModalBody">
+                ¿Estás seguro?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="dynamicModalForm" method="post">
+                    <button type="submit" class="btn btn-primary">Sí, confirmar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Toast for info-->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="customToast"
+         class="toast align-items-center text-white border-0"
+         role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div id="customToastBody" class="toast-body">
+                <!-- El mensaje irá aquí -->
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                    data-bs-dismiss="toast" aria-label="Cerrar"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer th:insert="~{footer :: miFooter}"></footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:if="${editing}" th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener("DOMContentLoaded", function () {
+        var fechaInput = document.getElementById('fechaCierre');
+        var fechaData = document.getElementById('data-fecha-cierre').value;
+
+        // Solo actualiza el valor, el binding de "th:field" sigue funcionando
+        if (!fechaData) {
+            fechaInput.value = new Date().toISOString().split('T')[0];
+        } else {
+            fechaInput.value = fechaData;
+        }
+    });
+    /*]]>*/
+</script>
+<script th:inline="javascript">
+    /*document.addEventListener('DOMContentLoaded', function () {
+        const container = document.getElementById('marketListContainer');
+        const addBtn = document.getElementById('addMarketBtn');
+        const isEditing = /!*[[${editing}]]*!/ false;
+
+        // Only execute if in edit mode
+        if (isEditing && container && addBtn) {
+            // Load existing markets
+            const markets = /!*[[${event != null ? event.marketList : null}]]*!/ [];
+            if (markets && markets.length > 0) {
+                markets.forEach(market => addMarketEntry(market.name));
+            } else {
+                addMarketEntry(); // Add an empty entry if no markets
+            }
+
+            // Event for "Add Market" button
+            addBtn.addEventListener('click', function () {
+                addMarketEntry();
+            });
+        }
+
+        // Function to add a new market entry
+        function addMarketEntry(value = '') {
+            const entryDiv = document.createElement('div');
+            entryDiv.className = 'd-flex align-items-center mb-2';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'form-control';
+            input.name = 'marketList[].name';
+            input.value = value;
+            input.placeholder = 'Nombre del mercado';
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn btn-danger btn-sm ms-2';
+            removeBtn.textContent = 'Eliminar';
+            removeBtn.onclick = function () {
+                container.removeChild(entryDiv);
+            };
+
+            entryDiv.appendChild(input);
+            entryDiv.appendChild(removeBtn);
+            container.appendChild(entryDiv);
+        }
+    });*/
+
+    function mostrarToast(mensaje, claseColor = 'bg-primary') {
+        const toastEl = document.getElementById('customToast');
+        const toastBody = document.getElementById('customToastBody');
+
+        // Elimina clases de fondo anteriores
+        toastEl.className = 'toast align-items-center text-white border-0';
+        toastEl.classList.add(claseColor);
+
+        toastBody.textContent = mensaje;
+
+        const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+        toast.show();
+    }
+
+    const modal = document.getElementById('dynamicModal');
+    modal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const title = button.getAttribute('data-title');
+        const message = button.getAttribute('data-message');
+        const action = button.getAttribute('data-action');
+
+        modal.querySelector('.modal-title').textContent = title;
+        modal.querySelector('.modal-body').textContent = message;
+        modal.querySelector('#dynamicModalForm').setAttribute('action', action);
+    });
+</script>
+</body>
+</html>

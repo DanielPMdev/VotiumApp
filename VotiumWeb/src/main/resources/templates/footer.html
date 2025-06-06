@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Footer</title>
+</head>
+<body>
+
+<!-- Footer Fragmento -->
+<footer th:fragment="miFooter" class="bg-dark text-white py-4">
+    <div class="container text-center">
+        <p>© <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2025</span> Votium. Todos los derechos reservados.</p>
+    </div>
+</footer>
+
+</body>
+</html>

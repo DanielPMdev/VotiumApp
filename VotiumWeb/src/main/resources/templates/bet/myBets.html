@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votium - Mis Apuestas</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/img/votium.ico">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+<!-- Navbar -->
+<nav th:insert="~{nav :: miNav}"></nav>
+
+<!-- Bets Section -->
+<section class="flex-fill py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Mis Apuestas</h2>
+        <div class="text-center mb-4">
+            <a th:if="${groupedBets != null and not #maps.isEmpty(groupedBets)}" th:href="@{/myBets/stats}" class="btn btn-outline-warning btn-sm mt-2 text-dark fw-bold btn-thick-border">
+                Ver Estadísticas de Mis Votaciones
+            </a>
+        </div>
+        <div th:if="${error}" class="alert alert-danger text-center" th:text="${error}"></div>
+        <div th:if="${param.message}" class="alert alert-success text-center" th:text="${param.message}"></div>
+
+        <!-- List of bets grouped by event -->
+        <div th:if="${groupedBets != null and not #maps.isEmpty(groupedBets)}">
+            <div th:each="entry : ${groupedBets.entrySet()}" class="mb-3">
+                <h3 class="mb-3" th:text="${entry.key?.title ?: 'Evento sin título'}">Título del Evento</h3>
+                <div class="row row-cols-1 row-cols-md-2 g-4">
+                    <div class="col" th:each="bet : ${entry.value}">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="card-title mb-0" th:text="${bet.option?.text ?: 'Sin opción'}">Opción</h6>
+                                    <span th:text="${bet.option?.percentage != null} ? ${#numbers.formatDecimal(bet.option.percentage, 1, 2)} + '%' : 'N/A'" class="text-muted">Porcentaje</span>
+                                </div>
+                                <div class="d-flex justify-content-between flex-wrap small text-muted mb-2">
+                                    <span th:class="${bet.status.name() == 'WIN'} ? 'text-success' : (${bet.status.name() == 'LOST'} ? 'text-danger' : 'text-warning')"
+                                          th:text="${bet.status.name() == 'WIN'} ? 'Ganada' : (${bet.status.name() == 'LOST'} ? 'Perdida' : 'Pendiente')">Estado</span>
+                                    <span>📅 Votado: <span th:text="${bet.betDate != null ? #temporals.format(bet.betDate, 'dd/MM/yyyy') : 'N/A'}">Fecha</span></span>
+                                </div>
+                                <p class="card-text small mb-2">
+                                    <strong>Pregunta:</strong>
+                                    <span th:text="${bet.option?.market?.question ?: 'Sin pregunta'}">Pregunta del mercado</span>
+                                </p>
+                                <div th:if="${bet.status.name() == 'PENDING'}" class="text-end">
+                                    <form th:action="@{/bets/cancel/{id}(id=${bet.id})}" method="post">
+                                        <button type="button"
+                                                class="btn btn-danger btn-sm"
+                                                th:data-title="'Confirmar cancelación'"
+                                                th:data-message="'¿Estás seguro de que deseas cancelar tu apuesta?'"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#dynamicModal"
+                                                th:data-action="@{/bets/cancel/{id}(id=${bet.id})}">
+                                            Cancelar Apuesta
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- If no bets -->
+        <div th:unless="${groupedBets != null and not #maps.isEmpty(groupedBets)}" class="text-center">
+            <p class="text-muted">No tienes apuestas registradas.</p>
+        </div>
+
+    </div>
+</section>
+
+<!-- Modal for confirm-->
+<div class="modal fade" id="dynamicModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="dynamicModalLabel">Confirmar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" id="dynamicModalBody">
+                ¿Estás seguro?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="dynamicModalForm" method="post">
+                    <button type="submit" class="btn btn-primary">Sí, confirmar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer th:insert="~{footer :: miFooter}"></footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const modal = document.getElementById('dynamicModal');
+    modal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const title = button.getAttribute('data-title');
+        const message = button.getAttribute('data-message');
+        const action = button.getAttribute('data-action');
+
+        modal.querySelector('.modal-title').textContent = title;
+        modal.querySelector('.modal-body').textContent = message;
+        modal.querySelector('#dynamicModalForm').setAttribute('action', action);
+    });
+</script>
+</body>
+</html>

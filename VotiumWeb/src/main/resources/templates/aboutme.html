@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portafolio DanielPM - Votium</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/img/votium.ico">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+<!-- Navbar -->
+<nav th:insert="~{nav :: miNav}"></nav>
+
+<!-- Hero Section -->
+<section class="hero-professional">
+    <div class="container text-center">
+        <img th:src="${urlImg}" alt="Daniel Porras Morales" class="img-fluid rounded shadow-sm mb-4" style="max-width: 9.375rem;"/>
+        <h1 class="display-4 fw-bold mb-3">Daniel Porras Morales</h1>
+        <p class="lead mb-4">Desarrollador BackEnd | Apasionado del Mundo Java</p>
+        <p class="mx-auto w-75 w-md-50" th:utext="${acerca}"></p>
+        <div class="d-flex justify-content-center gap-3 mb-3">
+            <!-- CAMBIAR LOS BOTONES DE LINKEDIN y GITHUB-->
+            <a th:href="@{${cvUrl}}" class="btn btn-gold fw-bold" download>Descargar CV</a>
+            <a th:href="${linkedinUrl}" class="btn btn-social fw-bold" target="_blank">LinkedIn</a>
+            <a th:href="${githubUrl}" class="btn btn-social fw-bold" target="_blank">GitHub</a>
+        </div>
+        <!-- Email Button Group -->
+        <div class="btn-group align-items-center" role="group">
+            <a th:href="${'mailto:'+email}" class="btn btn-social fw-bold rounded-end-0" th:text="${email}"></a>
+            <button class="btn btn-social fw-bold rounded-start-0" onclick="copyEmail(this)">
+                <img th:src="@{/img/icons8-copy-50.png}" alt="Copiar email de Daniel Porras" style="width: 1.5rem; height: 1.5rem;"/>
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Experiencia -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="section-title text-center mb-5">Experiencia Laboral</h2>
+        <div class="row g-4">
+            <div class="col-md-6" th:each="exp : ${experiencias}">
+                <div class="card-professional">
+                    <h5 class="card-title mb-2" th:text="${exp.titulo}"></h5>
+                    <h6 class="card-subtitle mb-2 text-muted" th:text="${exp.empresa}"></h6>
+                    <p class="card-text text-muted small mb-2" th:text="${exp.periodo}"></p>
+                    <p class="card-text" th:text="${exp.descripcion}" style="white-space: pre-line;"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Habilidades -->
+<section class="skill-padding bg-white">
+    <div class="container">
+        <h2 class="section-title text-center mb-5">Habilidades</h2>
+        <div class="row g-4">
+            <div class="col-md-4" th:each="habilidad : ${habilidades}">
+                <div class="card-professional text-center">
+                    <h5 class="card-title mb-2" th:text="${habilidad.nombre}">Java</h5>
+                    <p class="card-text text-muted" th:text="${habilidad.nivel}">Avanzado</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Proyectos -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="section-title text-center mb-5">Proyectos Destacados</h2>
+        <div class="row g-4">
+            <div class="col-md-4" th:each="proyecto : ${proyectos}">
+                <article class="project-card">
+                    <div class="project-image">
+                        <img th:src="${proyecto.imageUrl}"
+                             loading="lazy"
+                             th:alt="'Imagen del proyecto ' + ${proyecto.nombre}"
+                             class="img-fluid">
+                        <div class="overlay">
+                            <a th:href="${proyecto.url}"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="overlay-link"
+                               aria-label="Ver proyecto en GitHub">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <h3 th:text="${proyecto.nombre}" class="project-title">Votium</h3>
+                        <p th:utext="${proyecto.descripcion}">
+                            Plataforma de votaciones segura y eficiente construida con Spring Boot y Thymeleaf.
+                        </p>
+                        <div class="tags">
+                            <span class="tag" th:each="tech : ${proyecto.tecnologias}" th:text="${tech}">Spring Boot</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer th:insert="~{footer :: miFooter}"></footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- JavaScript for copyEmail function -->
+<script>
+    function copyEmail(button) {
+        // Get the email text from the previous sibling element (the <a> tag)
+        const emailElement = button.previousElementSibling;
+        const emailText = emailElement.textContent.trim();
+
+        // Copy to clipboard
+        navigator.clipboard.writeText(emailText).then(() => {
+            // Create a temporary message element
+            const message = document.createElement('span');
+            message.textContent = '¡Email copiado!';
+            message.className = 'text-success ms-2';
+            message.style.fontSize = '0.9rem';
+            message.style.fontWeight = 'bold';
+
+            // Append the message next to the button group
+            const buttonGroup = button.parentElement;
+            buttonGroup.appendChild(message);
+
+            // Remove the message after 3 seconds
+            setTimeout(() => {
+                message.remove();
+            }, 3000);
+        }).catch(err => {
+            // Create an error message element
+            const errorMessage = document.createElement('span');
+            errorMessage.textContent = 'Error al copiar';
+            errorMessage.className = 'text-danger ms-2';
+            errorMessage.style.fontSize = '0.9rem';
+            errorMessage.style.fontWeight = 'bold';
+
+            // Append the error message
+            const buttonGroup = button.parentElement;
+            buttonGroup.appendChild(errorMessage);
+
+            // Remove the error message after 3 seconds
+            setTimeout(() => {
+                errorMessage.remove();
+            }, 3000);
+
+            console.error('Error al copiar el email: ', err);
+        });
+    }
+</script>
+</body>
+</html>
+
+
+
+
+<!-- Acerca de mí -->
+<!--
+<section class="py-5">
+    <div class="container">
+        <h2 class="section-title text-center mb-5">Acerca de Mí</h2>
+        <div class="feature-card mx-auto" style="max-width: 600px;">
+            <p class="text-center" th:utext="${acerca}">
+                Soy un desarrollador apasionado por crear soluciones tecnológicas innovadoras. Como creador de Votium,
+                he trabajado en construir una plataforma de votaciones segura, eficiente y fácil de usar.
+            </p>
+        </div>
+    </div>
+</section>
+-->
+
+
+<!-- Contacto -->
+<!--
+<section class="py-5 bg-white">
+    <div class="container">
+        <h2 class="section-title text-center mb-5">Contacto</h2>
+        <div class="feature-card mx-auto contact-info" style="max-width: 600px;">
+            <p class="text-center mb-2">
+                Correo: <a th:href="'mailto:' + ${email}" th:text="${email}">tucorreo@ejemplo.com</a>
+            </p>
+            <p class="text-center">
+                Conéctate conmigo en
+                <a th:href="${linkedinUrl}" target="_blank">LinkedIn</a> o
+                <a th:href="${githubUrl}" target="_blank">GitHub</a>.
+            </p>
+        </div>
+    </div>
+</section>
+-->

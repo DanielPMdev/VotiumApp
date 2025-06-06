@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votium - Mi Perfil</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/img/votium.ico">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+<!-- Navbar -->
+<nav th:insert="~{nav :: miNav}"></nav>
+
+<!-- Profile Section -->
+<section class="flex-fill d-flex align-items-center justify-content-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-11 col-sm-10 col-md-8 col-lg-5">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4 p-md-5">
+                        <h2 class="text-center mb-4">Mi Perfil</h2>
+
+                        <!-- Error message -->
+                        <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+
+                        <!-- User data -->
+                        <div th:if="${user}" class="text-center">
+                            <img th:src="${user.urlImage}" th:unless="${user.urlImage == null}" alt="Imagen de perfil"
+                                 class="rounded-circle mb-3" style="max-width: 150px;"/>
+                            <p th:if="${user.urlImage == null}" class="text-muted">No hay imagen de perfil</p>
+
+                            <!-- Button to change image -->
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-outline-warning btn-sm text-dark fw-bold"
+                                        data-bs-toggle="modal" data-bs-target="#changeImageModal">
+                                    Cambiar Imagen
+                                </button>
+                            </div>
+
+                            <h4 class="mb-3" th:text="${user.username}">Nombre de usuario</h4>
+                            <p><strong>Email:</strong> <span th:text="${user.email}">email@ejemplo.com</span></p>
+                            <p><strong>Rol:</strong> <span th:text="${user.role != null ? user.role : 'Sin rol'}">Sin rol</span>
+                            </p>
+                            <p><strong>Eventos creados:</strong> <span
+                                    th:text="${user.eventList != null ? user.eventList.size() : 0}">0</span></p>
+                            <p><strong>Apuestas realizadas:</strong> <span
+                                    th:text="${user.betList != null ? user.betList.size() : 0}">0</span></p>
+
+                            <!-- Button to change password -->
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-outline-warning btn-sm text-dark fw-bold"
+                                        data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                                    Cambiar Contraseña
+                                </button>
+                            </div>
+
+                            <!-- Action buttons -->
+                            <div class="mt-4">
+                                <form th:action="@{/profile/delete}" method="post" style="display:inline;">
+                                    <button type="button"
+                                            class="btn btn-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#dynamicModal"
+                                            th:data-title="'Confirmar eliminación de Perfil'"
+                                            th:data-message="'¿Estás seguro de que deseas eliminar tu perfil? Esta acción no se puede deshacer.'"
+                                            th:data-action="@{/profile/delete}">
+                                        Eliminar Perfil
+                                    </button>
+                                </form>
+                                <form th:action="@{/logout}" method="post" style="display:inline; margin-left: 10px;">
+                                    <button type="submit" class="btn btn-outline-secondary">Cerrar Sesión</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- If no user data -->
+                        <div th:unless="${user}" class="text-center">
+                            <p class="text-muted">No se pudieron cargar los datos del perfil.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal for confirm-->
+<div class="modal fade" id="dynamicModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="dynamicModalLabel">Confirmar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" id="dynamicModalBody">
+                ¿Estás seguro?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="dynamicModalForm" method="post">
+                    <button type="submit" class="btn btn-primary">Sí, confirmar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for changing image -->
+<div class="modal fade" id="changeImageModal" tabindex="-1" aria-labelledby="changeImageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changeImageModalLabel">Cambiar Imagen de Perfil</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="imageForm" th:action="@{/profile/update-image}" method="post">
+                    <div class="mb-3">
+                        <label for="imageUrl" class="form-label">URL de la nueva imagen</label>
+                        <input type="url" class="form-control" id="imageUrl" name="imageUrl"
+                               placeholder="https://example.com/image.jpg" required/>
+                    </div>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold">Actualizar Imagen</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for changing password -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordModalLabel">Cambiar Contraseña</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div th:if="${modalError}" class="alert alert-danger" role="alert" th:text="${modalError}"></div>
+                <form id="passwordForm" th:action="@{/profile/change-password}" method="post"
+                      onsubmit="return validatePasswords()">
+                    <input type="hidden" name="userId" th:value="${user.id}"/>
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">Nueva Contraseña</label>
+                        <input type="password" class="form-control" id="newPassword" name="newPassword" required
+                               oninput="checkPasswords()"/>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Confirmar Nueva Contraseña</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required
+                               oninput="checkPasswords()"/>
+                        <div id="passwordMismatch" class="text-danger mt-1" style="display: none;">Las contraseñas no
+                            coinciden
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold" id="submitButton" disabled>
+                        Actualizar Contraseña
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer th:insert="~{footer :: miFooter}"></footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function checkPasswords() {
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const mismatchMessage = document.getElementById('passwordMismatch');
+        const submitButton = document.getElementById('submitButton');
+
+        if (newPassword === confirmPassword && newPassword !== '') {
+            mismatchMessage.style.display = 'none';
+            submitButton.disabled = false;
+        } else {
+            mismatchMessage.style.display = newPassword !== confirmPassword ? 'block' : 'none';
+            submitButton.disabled = true;
+        }
+    }
+
+    function validatePasswords() {
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        return newPassword === confirmPassword && newPassword !== '';
+    }
+
+    const modal = document.getElementById('dynamicModal');
+    modal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const title = button.getAttribute('data-title');
+        const message = button.getAttribute('data-message');
+        const action = button.getAttribute('data-action');
+
+        modal.querySelector('.modal-title').textContent = title;
+        modal.querySelector('.modal-body').textContent = message;
+        modal.querySelector('#dynamicModalForm').setAttribute('action', action);
+    });
+</script>
+</body>
+</html>

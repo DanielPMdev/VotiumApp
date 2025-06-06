@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votium - Gestión de Categorías</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/img/votium.ico">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+<!-- Navbar -->
+<nav th:insert="~{nav :: miNav}"></nav>
+
+<!-- Categories Section -->
+<section class="flex-fill py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-11 col-sm-10 col-md-10 col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4 p-md-5">
+                        <h2 class="text-center mb-4">Gestión de Categorías</h2>
+                        <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+                        <div th:if="${success}" class="alert alert-success" role="alert" th:text="${success}"></div>
+
+                        <!-- Add Category Button -->
+                        <div class="text-end mb-4">
+                            <button type="button" class="btn btn-warning text-dark fw-bold"
+                                    data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                                Añadir Categoría
+                            </button>
+                        </div>
+
+                        <!-- List of Categories -->
+                        <div th:if="${categories != null and not #lists.isEmpty(categories)}" class="row">
+                            <div th:each="category : ${categories}" class="col-md-6 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span th:text="${category.name}">Nombre de la Categoría</span>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            <button type="button"
+                                                    class="btn btn-outline-warning btn-sm text-dark fw-bold"
+                                                    th:attr="data-id=${category.id}, data-name=${category.name}"
+                                                    onclick="openEditCategoryModal(this.getAttribute('data-id'), this.getAttribute('data-name'))">
+                                                Editar
+                                            </button>
+                                            <form th:action="@{/admin/categories/delete/{id}(id=${category.id})}"
+                                                  method="post" class="d-inline">
+                                                <button type="button"
+                                                        class="btn btn-danger btn-sm fw-bold"
+                                                        th:data-title="'Confirmar eliminación'"
+                                                        th:data-message="'¿Estás seguro de que deseas eliminar esta categoría?'"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#dynamicModal"
+                                                        th:data-action="@{/admin/categories/delete/{categoryId}(categoryId=${category.id})}">
+                                                    Eliminar
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div th:unless="${categories != null and not #lists.isEmpty(categories)}" class="text-center">
+                            <p class="text-muted">No hay categorías registradas.</p>
+                        </div>
+
+                        <!-- Navigation Button -->
+                        <div class="text-center mt-4">
+                            <a th:href="@{/admin}" class="btn btn-outline-secondary">Volver al Panel de Administración</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal for Adding New Category -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCategoryModalLabel">Añadir Nueva Categoría</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/admin/categories/new}" method="post" id="addCategoryForm">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Nombre de la Categoría</label>
+                        <input type="text" class="form-control" id="name" name="name" required
+                               placeholder="Ej: Deportes"/>
+                    </div>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold">Guardar Categoría</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Editing Category -->
+<div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editCategoryModalLabel">Editar Categoría</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/admin/categories/edit}" method="post" id="editCategoryForm">
+                    <input type="hidden" id="editCategoryId" name="id"/>
+                    <div class="mb-3">
+                        <label for="editName" class="form-label">Nombre de la Categoría</label>
+                        <input type="text" class="form-control" id="editName" name="name" required
+                               placeholder="Ej: Deportes"/>
+                    </div>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for confirm-->
+<div class="modal fade" id="dynamicModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="dynamicModalLabel">Confirmar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" id="dynamicModalBody">
+                ¿Estás seguro?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="dynamicModalForm" method="post">
+                    <button type="submit" class="btn btn-primary">Sí, confirmar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer th:insert="~{footer :: miFooter}"></footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function openEditCategoryModal(id, name) {
+        const form = document.getElementById('editCategoryForm');
+        form.action = `/admin/categories/edit/${id}`;
+        document.getElementById('editCategoryId').value = id;
+        document.getElementById('editName').value = name;
+        new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
+    }
+
+    const modal = document.getElementById('dynamicModal');
+    modal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const title = button.getAttribute('data-title');
+        const message = button.getAttribute('data-message');
+        const action = button.getAttribute('data-action');
+
+        modal.querySelector('.modal-title').textContent = title;
+        modal.querySelector('.modal-body').textContent = message;
+        modal.querySelector('#dynamicModalForm').setAttribute('action', action);
+    });
+</script>
+</body>
+</html>

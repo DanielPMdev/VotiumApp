@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votium - Crear Nuevo Evento</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/img/votium.ico">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+<!-- Navbar -->
+<nav th:insert="~{nav :: miNav}"></nav>
+
+<!-- Add Event Section -->
+<section class="flex-fill d-flex align-items-center justify-content-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-11Connection, col-sm-10, col-md-8, col-lg-6">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4 p-md-5">
+                        <h2 class="text-center mb-4">Crear Nuevo Evento</h2>
+
+                        <!-- Error message -->
+                        <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+
+                        <!-- Form to add event -->
+                        <form th:action="@{/event/new}" method="post" id="eventForm">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Título</label>
+                                <input type="text" class="form-control" id="title" name="title" required />
+                            </div>
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Descripción</label>
+                                <textarea class="form-control" id="description" name="description" rows="3" maxlength="255"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="closedAtDate" class="form-label">Fecha de Cierre</label>
+                                <input type="date" id="closedAtDate" name="closedAtDate" class="form-control" required />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="closedAtTime" class="form-label">Hora de Cierre</label>
+                                <input type="time" id="closedAtTime" name="closedAtTime" class="form-control"required />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="urlImage" class="form-label">URL de la Imagen</label>
+                                <input type="url" class="form-control" id="urlImage" name="urlImage" placeholder="https://example.com/image.jpg" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Categoría</label>
+                                <select class="form-select" id="category" name="category.id" required>
+                                    <option value="">Selecciona una categoría</option>
+                                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                                </select>
+                            </div>
+                            <!-- Section for markets -->
+                            <!--<div class="mb-3">
+                                <label class="form-label">Mercados</label>
+                                <div id="marketListContainer">
+                                    &lt;!&ndash; Dynamic market entries will be added here &ndash;&gt;
+                                </div>
+                                <button type="button" class="btn btn-outline-warning btn-sm mt-2 text-dark fw-bold" id="addMarketBtn">Añadir Mercado</button>
+                            </div>-->
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-warning text-dark fw-bold">Guardar Evento</button>
+                                <a th:href="@{/events}" class="btn btn-secondary">Cancelar</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer th:insert="~{footer :: miFooter}"></footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const container = document.getElementById('marketListContainer');
+        const addBtn = document.getElementById('addMarketBtn');
+
+        // Function to add a new market entry
+        function addMarketEntry(value = '') {
+            const entryDiv = document.createElement('div');
+            entryDiv.className = 'd-flex align-items-center mb-2';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'form-control';
+            input.name = 'marketList[].name'; // Name for list submission
+            input.value = value;
+            input.placeholder = 'Nombre del mercado';
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn btn-danger btn-sm ms-2';
+            removeBtn.textContent = 'Eliminar';
+            removeBtn.onclick = function () {
+                container.removeChild(entryDiv);
+            };
+
+            entryDiv.appendChild(input);
+            entryDiv.appendChild(removeBtn);
+            container.appendChild(entryDiv);
+        }
+
+        // Add an initial empty market entry
+        addMarketEntry();
+
+        // Event for "Add Market" button
+        addBtn.addEventListener('click', function () {
+            addMarketEntry();
+        });
+    });
+</script>
+</body>
+</html>

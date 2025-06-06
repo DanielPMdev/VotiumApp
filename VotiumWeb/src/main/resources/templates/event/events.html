@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votium - Eventos</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/img/votium.ico">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+<!-- Navbar -->
+<nav th:insert="~{nav :: miNav}"></nav>
+
+<!-- Events Section -->
+<section class="flex-fill py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Eventos</h2>
+
+        <!-- Button to add new event -->
+        <div class="text-end mb-4">
+            <a th:href="@{/event/new}" class="btn btn-warning text-dark fw-bold">Crear Nuevo Evento</a>
+        </div>
+
+        <!-- List of events -->
+        <div class="row row-cols-1 row-cols-md-3 g-4" th:if="${events != null and not #lists.isEmpty(events)}">
+            <div class="col" th:each="event : ${events}">
+                <a th:href="@{/event/{id}(id=${event.id})}" class="text-decoration-none">
+                    <div class="card shadow-sm h-100">
+                        <img th:src="${event.urlImage}" th:unless="${event.urlImage == null}" alt="Imagen del evento"
+                             class="card-img-top" style="height: 150px; object-fit: cover;"/>
+                        <img th:unless="${event.urlImage != null}" src="https://via.placeholder.com/150"
+                             alt="Sin imagen" class="card-img-top" style="height: 150px; object-fit: cover;"/>
+                        <div class="card-body">
+                            <h6 class="card-title mb-2" th:text="${event.title}">Título</h6>
+                            <p class="card-text text-muted small mb-4"
+                               th:text="${event.description != null ? #strings.abbreviate(event.description, 142) : 'Sin descripción'}">
+                                Descripción</p>
+
+                            <div class="d-flex justify-content-between flex-wrap small text-muted">
+                                <span>📅 Creado: <span th:text="${#temporals.format(event.createdAt, 'dd/MM/yyyy')}">Fecha</span></span>
+                                <span>⏳ Cierre: <span th:text="${event.closedAt != null ? #temporals.format(event.closedAt, 'dd/MM/yyyy HH:mm') : 'Sin cierre'}"></span></span>
+                            </div>
+
+                            <div class="d-flex justify-content-between flex-wrap mt-2 small text-muted">
+                                <span>📂 Categoría: <span th:text="${event.category?.name ?: 'Sin categoría'}"></span></span>
+                                <span th:class="${event.closedEvent} ? 'text-danger' : 'text-success'"
+                                      th:text="${event.closedEvent} ? 'Cerrado' : 'Abierto'"></span>
+                                <span>👤 Usuario: <span th:text="${event.user?.username ?: 'Sin usuario'}"></span></span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+
+
+        <!-- If no events -->
+        <div th:unless="${events != null and not #lists.isEmpty(events)}" class="text-center">
+            <p class="text-muted">No tienes eventos registrados.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer th:insert="~{footer :: miFooter}"></footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

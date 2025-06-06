@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votium - Tu Plataforma de Votaciones</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/img/votium.ico">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+</head>
+<body>
+
+<!-- Nav -->
+<nav th:insert="~{nav :: miNav}"></nav>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container text-center">
+        <h1 class="display-3 fw-bold mb-4">Bienvenido a <span class="h1-votium">Votium</span></h1>
+        <p class="lead mb-5">La plataforma definitiva para crear eventos, votar y conocer resultados de forma rápida,
+            segura y transparente. Con Votium, organizas votaciones personalizadas en minutos, participas desde
+            cualquier dispositivo y accedes a resultados en tiempo real con total confianza. Únete a una comunidad que
+            valora la transparencia y la eficiencia en cada decisión.</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a th:href="@{/events}" class="btn btn-gold">Explorar Eventos</a>
+            <a th:href="@{/event/new}" class="btn btn-warning px-2 py-3 fw-bold">Crear tu Primer Evento</a>
+        </div>
+        <div th:if="${admin}" class="card-body mt-5 py-4">
+            <h3 class="card-title fw-bold mb-3">Panel de Administración</h3>
+            <a th:href="@{/admin}" class="btn btn-primary btn-lg fw-bold">Ir al Panel de Administrador</a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">¿Cómo funciona Votium?</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card" style="background-color: #fefbf1">
+                    <img th:src="@{./img/create-event.png}" alt="Crear Evento"/>
+                    <h3>Crea tu Evento</h3>
+                    <p>Configura eventos personalizados en minutos, desde votaciones simples hasta encuestas
+                        complejas.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card" style="background-color: #fefbf1">
+                    <img th:src="@{./img/vote.png}" alt="Votar"/>
+                    <h3>Vota con Confianza</h3>
+                    <p>Participa en eventos con un sistema seguro y fácil de usar, desde cualquier dispositivo.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card" style="background-color: #fefbf1">
+                    <img th:src="@{./img/results.png}" alt="Resultados"/>
+                    <h3>Consulta Resultados</h3>
+                    <p>Accede a resultados en tiempo real con gráficos claros y detallados.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Portfolio Link Section -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-12 col-md-10 col-lg-8">
+                <h2 class="mb-4">¿Quién es el creador de Votium? Conoce un poco más sobre mí</h2>
+                <p class="lead mb-4">
+                    Explora mis competencias técnicas y los proyectos que he desarrollado, como Votium.
+                </p>
+                <a th:href="@{/portfolio}" class="btn btn-gold">Sobre Mí</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Footer -->
+<footer th:insert="~{footer :: miFooter}"></footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

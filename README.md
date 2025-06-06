@@ -39,8 +39,8 @@
 
 ```bash
 Votium/
-├── votium-api/         # API REST
-├── votium-web/         # Aplicación Web
+├── VotiumAPI/         # API REST
+├── VotiumWeb/         # Aplicación Webºº
 ```
 
 ---
@@ -87,7 +87,7 @@ mi-clave-super-secreta
 ### ▶️ 1. Ejecutar la API
 
 ```bash
-cd votium-api
+cd VotiumAPI
 ```
 
 #### 🛠️ Editar `application.properties`
@@ -115,7 +115,7 @@ API disponible en:
 ### 🌐 2. Ejecutar la Web
 
 ```bash
-cd ../votium-web
+cd ../VotiumWeb
 ```
 
 #### 🛠️ Editar `application.properties`

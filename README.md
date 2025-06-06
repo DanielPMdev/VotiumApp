@@ -51,7 +51,7 @@ Votium/
 
 ```bash
 git clone https://github.com/DanielPMdev/VotiumApp.git
-cd Votium
+cd VotiumApp
 ```
 
 ---

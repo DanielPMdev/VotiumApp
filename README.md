@@ -172,6 +172,18 @@ Authorization: Bearer <token>
 
 ---
 
+---
+
+## 🎥 Vídeos
+
+### 👤 Demo User
+https://github.com/user-attachments/assets/1a18c704-63b0-408f-9b07-9ec809d621a6
+
+### 🔑 Demo Admin
+https://github.com/user-attachments/assets/fc248169-6e50-4ef8-9d23-f3a82cc58c22
+
+---
+
 ## 📌 Etiquetas
 
 `#SpringBoot` `#Thymeleaf` `#JWT` `#API` `#VotiumApp` `#Votaciones`

@@ -177,10 +177,10 @@ Authorization: Bearer <token>
 ## 🎥 Vídeos
 
 ### 👤 Demo User
-https://github.com/user-attachments/assets/1a18c704-63b0-408f-9b07-9ec809d621a6
+https://github.com/user-attachments/assets/756d4f1c-bcb6-468f-8b32-ddd2553911d1
 
 ### 🔑 Demo Admin
-https://github.com/user-attachments/assets/fc248169-6e50-4ef8-9d23-f3a82cc58c22
+https://github.com/user-attachments/assets/74edce51-bdad-4882-82a8-d2bd31fe57f8
 
 ---
 

@@ -15,6 +15,7 @@ public interface UserService {
     List<User> getAllUsers();
 
     Optional<User> getUserById(Long id);
+    Optional<User> getUserByEmail(String email);
     Optional<User> getUserByName(String username);
 
     //Optional<List<Pet>> getPetsByUserId(Long id);

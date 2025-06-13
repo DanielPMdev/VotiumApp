@@ -104,41 +104,86 @@ public class AuthController {
     }
 
     //CAMBIOS DE CONTRASEÑA
+//    @GetMapping("/changePassword")
+//    public String showForgotPasswordForm(Model model) {
+//        model.addAttribute("authenticated", false);
+//        return "auth/change-password";
+//    }
+//
+//    @PostMapping("/changePassword")
+//    public String requestPasswordReset(@RequestParam String username, Model model) {
+//        try {
+//            model.addAttribute("authenticated", false);
+//            Long userId = authService.getUserIdByUsername(username); // Obtener el ID del usuario
+//            model.addAttribute("userId", userId);
+//            return "auth/change-password-form";
+//        } catch (Exception e) {
+//            model.addAttribute("error", "Usuario no encontrado o error: " + e.getMessage());
+//            return "auth/change-password";
+//        }
+//    }
+//    @PostMapping("/changePassword/reset")
+//    public String resetPassword(@RequestParam Long userId, @RequestParam String newPassword, @RequestParam String confirmPassword, Model model) {
+//        if (!newPassword.equals(confirmPassword)) {
+//            model.addAttribute("error", "Las contraseñas no coinciden");
+//            model.addAttribute("userId", userId);
+//            return "auth/change-password-form";
+//        }
+//        try {
+//            authService.resetPassword(userId, newPassword);
+//            model.addAttribute("success", "Contraseña actualizada correctamente. Inicia sesión con tu nueva contraseña.");
+//            return "auth/login";
+//        } catch (Exception e) {
+//            model.addAttribute("error", "Error al cambiar la contraseña: " + e.getMessage());
+//            model.addAttribute("userId", userId);
+//            return "auth/change-password-form";
+//        }
+//    }
 
-    @GetMapping("/changePassword")
-    public String showForgotPasswordForm(Model model) {
+    @GetMapping("/changePassword/email")
+    public String showForgotPasswordFormEmail(Model model) {
         model.addAttribute("authenticated", false);
-        return "auth/change-password";
+        return "auth/change-password-email";
     }
 
-    @PostMapping("/changePassword")
-    public String requestPasswordReset(@RequestParam String username, Model model) {
+    @PostMapping("/changePassword/email")
+    public String requestPasswordResetEmail(@RequestParam String email, Model model) {
         try {
             model.addAttribute("authenticated", false);
-            Long userId = authService.getUserIdByUsername(username); // Obtener el ID del usuario
-            model.addAttribute("userId", userId);
-            return "auth/change-password-form";
+            authService.savePasswordResetToken(email);
+            model.addAttribute("success", "Email de recuperación enviado. Revisa tu bandeja.");
+            return "auth/change-password-email";
         } catch (Exception e) {
             model.addAttribute("error", "Usuario no encontrado o error: " + e.getMessage());
-            return "auth/change-password";
+            return "auth/change-password-email";
         }
     }
 
-    @PostMapping("/changePassword/reset")
-    public String resetPassword(@RequestParam Long userId, @RequestParam String newPassword, @RequestParam String confirmPassword, Model model) {
+    @GetMapping("/changePassword/token")
+    public String showResetFormWithToken(@RequestParam String token, Model model) {
+        model.addAttribute("token", token);
+        return "auth/change-password-form-token";
+    }
+
+    @PostMapping("/changePassword/token")
+    public String handlePasswordResetWithToken(@RequestParam String token,
+                                               @RequestParam String newPassword,
+                                               @RequestParam String confirmPassword,
+                                               Model model) {
         if (!newPassword.equals(confirmPassword)) {
             model.addAttribute("error", "Las contraseñas no coinciden");
-            model.addAttribute("userId", userId);
-            return "auth/change-password-form";
+            model.addAttribute("token", token);
+            return "auth/change-password-form-token";
         }
+
+        // Llama al endpoint de la API para verificar el token y actualizar
         try {
-            authService.resetPassword(userId, newPassword);
-            model.addAttribute("success", "Contraseña actualizada correctamente. Inicia sesión con tu nueva contraseña.");
+            authService.resetPasswordWithToken(token, newPassword);
+            model.addAttribute("success", "Contraseña restablecida correctamente");
             return "auth/login";
         } catch (Exception e) {
-            model.addAttribute("error", "Error al cambiar la contraseña: " + e.getMessage());
-            model.addAttribute("userId", userId);
-            return "auth/change-password-form";
+            model.addAttribute("error", "Error al restablecer la contraseña: " + e.getMessage());
+            return "auth/change-password-form-token";
         }
     }
 }

@@ -9,8 +9,13 @@ import danielpm.dev.model.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author danielpm.dev
@@ -128,6 +133,42 @@ public class AuthService {
                 throw new RuntimeException("Error al contactar la API: " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
             }
         }
+    }
+
+    public void savePasswordResetToken(String email) {
+        String url = apiBaseUrl + "/auth/request-reset";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("email", email);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+
+            if (response.getStatusCode() != HttpStatus.OK) {
+                throw new RuntimeException("Error al solicitar restablecimiento: " + response.getBody());
+            }
+        } catch (HttpClientErrorException e) {
+            throw new RuntimeException("Error al solicitar restablecimiento: " + e.getResponseBodyAsString());
+        }
+    }
+
+    public void resetPasswordWithToken(String token, String newPassword) {
+        String url = apiBaseUrl + "/api/user/reset-password-with-token";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, String> body = new HashMap<>();
+        body.put("token", token);
+        body.put("password", newPassword);
+
+        HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
+
+        restTemplate.postForEntity(url, entity, String.class);
     }
 
     public void resetPassword(Long userId, String newPassword) {

@@ -4,15 +4,16 @@ import danielpm.dev.dto.request.image.ImageUpdateRequest;
 import danielpm.dev.dto.request.user.ChangeUserDTO;
 import danielpm.dev.dto.request.user.FullUserDTO;
 import danielpm.dev.dto.request.user.PasswordUserDTO;
-import danielpm.dev.entity.Bet;
-import danielpm.dev.entity.Event;
-import danielpm.dev.entity.Role;
-import danielpm.dev.entity.User;
+import danielpm.dev.entity.*;
+import danielpm.dev.service.PasswordResetTokenService;
 import danielpm.dev.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author danielpm.dev
@@ -22,9 +23,11 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final PasswordResetTokenService passwordResetTokenService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, PasswordResetTokenService passwordResetTokenService) {
         this.userService = userService;
+        this.passwordResetTokenService = passwordResetTokenService;
     }
 
     /*
@@ -150,6 +153,27 @@ public class UserController {
 
         User updatedUser = userService.createOrUpdateUser(userToUpdate);
         return ResponseEntity.ok(updatedUser);
+    }
+
+    @PostMapping("/user/reset-password-with-token")
+    public ResponseEntity<String> resetPasswordWithToken(@RequestBody Map<String, String> payload) {
+        String token = payload.get("token");
+        String newPassword = payload.get("password");
+
+        PasswordResetToken resetToken = passwordResetTokenService.getPasswordResetByToken(token)
+                .orElseThrow(() -> new RuntimeException("Token inválido"));
+
+        if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token expirado");
+        }
+
+        User user = resetToken.getUser();
+        user.setPassword(newPassword);
+        userService.createOrUpdateUser(user);
+
+        passwordResetTokenService.deletePasswordResetTokenById(resetToken.getId());
+
+        return ResponseEntity.ok("Contraseña actualizada correctamente");
     }
 
     /*

@@ -38,7 +38,7 @@
               </div>
               <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
               <!-- Enlace para ir a cambiar la contraseña -->
-              <p class="text-center mt-3">¿Olvidaste la contraseña? <a th:href="@{/changePassword}" class="text-primary">Recuperar Contraseña</a></p>
+              <p class="text-center mt-3">¿Olvidaste la contraseña? <a th:href="@{/changePassword/email}" class="text-primary">Recuperar Contraseña</a></p>
 
               <!-- Enlace para ir a register -->
               <p class="text-center mb-0">¿No tienes cuenta? <a th:href="@{/register}" class="text-decoration-none">Regístrate aquí</a></p>

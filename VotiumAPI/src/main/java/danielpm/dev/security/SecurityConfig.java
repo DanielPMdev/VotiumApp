@@ -46,7 +46,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("api/user/username/{username}").permitAll()
-                        .requestMatchers("api/user/changePassword/{id}").permitAll()
+                        .requestMatchers("api/user/reset-password-with-token").permitAll()
+                        //.requestMatchers("api/user/changePassword/{id}").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

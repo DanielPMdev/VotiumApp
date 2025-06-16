@@ -3,6 +3,9 @@ package danielpm.dev.service.impl;
 import danielpm.dev.entity.Event;
 import danielpm.dev.repository.EventRepository;
 import danielpm.dev.service.EventService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -29,9 +32,9 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> getAllEvents() {
-        closeExpiredEvents();
-        return eventRepository.findAll();
+    public Page<Event> getAllEvents(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return eventRepository.findAll(pageable);
     }
 
     @Override

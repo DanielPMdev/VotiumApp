@@ -4,6 +4,7 @@ import danielpm.dev.dto.request.event.ChangeEventDTO;
 import danielpm.dev.dto.request.event.CloseEventDTO;
 import danielpm.dev.dto.request.event.CreateEventDTO;
 import danielpm.dev.dto.request.image.ImageUpdateRequest;
+import danielpm.dev.dto.response.event.PaginatedResponseEventDTO;
 import danielpm.dev.dto.response.event.ResponseEventDTO;
 import danielpm.dev.entity.Category;
 import danielpm.dev.entity.Event;
@@ -13,6 +14,8 @@ import danielpm.dev.service.CategoryService;
 import danielpm.dev.service.EventService;
 import danielpm.dev.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,17 +49,24 @@ public class EventController {
         GET http://localhost:8080/api/events
      */
     @GetMapping("/events")
-    public ResponseEntity<List<ResponseEventDTO>> findAll() {
-        List<Event> eventList = eventService.getAllEvents();
+    public ResponseEntity<PaginatedResponseEventDTO> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-        if (eventList.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
+        Page<Event> eventPage = eventService.getAllEvents(page, size);
 
-        List<ResponseEventDTO> responseEventDTOList = eventList.stream()
-                .map(ResponseEventDTO::new).toList();
+        List<ResponseEventDTO> content = eventPage.getContent().stream()
+                .map(ResponseEventDTO::new)
+                .toList();
 
-        return ResponseEntity.ok(responseEventDTOList);
+        PaginatedResponseEventDTO dto = new PaginatedResponseEventDTO();
+        dto.setContent(content);
+        dto.setTotalPages(eventPage.getTotalPages());
+        dto.setNumber(eventPage.getNumber());
+        dto.setSize(eventPage.getSize());
+        dto.setTotalElements(eventPage.getTotalElements());
+
+        return ResponseEntity.ok(dto);
     }
 
     /*

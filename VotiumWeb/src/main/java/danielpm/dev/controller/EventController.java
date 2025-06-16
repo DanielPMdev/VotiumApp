@@ -1,6 +1,8 @@
 package danielpm.dev.controller;
 
 import danielpm.dev.dto.response.bet.UserBetStats;
+import danielpm.dev.dto.response.event.PaginatedEvent;
+import danielpm.dev.dto.response.event.PaginatedResponseEventDTO;
 import danielpm.dev.model.*;
 import danielpm.dev.service.*;
 import jakarta.servlet.http.HttpSession;
@@ -17,6 +19,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static danielpm.dev.service.UserService.*;
 
@@ -41,22 +44,28 @@ public class EventController {
     }
 
     @GetMapping("/events")
-    public String events(Model model, HttpSession session) {
+    public String events(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size,
+            Model model, HttpSession session
+    ) {
         String token = (String) session.getAttribute("jwtToken");
         Boolean isAuthenticated = token != null && !token.isEmpty();
         model.addAttribute("authenticated", isAuthenticated);
 
         if (isAuthenticated) {
             try {
-                List<Event> eventList = eventService.getAllEvents(token);
-                model.addAttribute("events", eventList);
+                PaginatedEvent paginated = eventService.getAllEvents(token, page, size);
+                model.addAttribute("events", paginated.getEvents());
+                model.addAttribute("totalPages", paginated.getTotalPages());
+                model.addAttribute("currentPage", paginated.getCurrentPage());
                 return "event/events";
             } catch (Exception e) {
                 model.addAttribute("error", "Error al cargar los eventos: " + e.getMessage());
                 return "event/events";
             }
         } else {
-            return "redirect:/login"; // Si no está autenticado, redirige a login
+            return "redirect:/login";
         }
     }
 

@@ -2,6 +2,8 @@ package danielpm.dev.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import danielpm.dev.dto.response.event.CloseEventDTO;
+import danielpm.dev.dto.response.event.PaginatedEvent;
+import danielpm.dev.dto.response.event.PaginatedResponseEventDTO;
 import danielpm.dev.dto.response.event.ResponseEventDTO;
 import danielpm.dev.model.Category;
 import danielpm.dev.model.Event;
@@ -36,24 +38,28 @@ public class EventService {
         this.objectMapper = objectMapper;
     }
 
-    public List<Event> getAllEvents(String token) {
-        String url = apiBaseUrl + "/api/events";
+    public PaginatedEvent getAllEvents(String token, int page, int size) {
+        String url = apiBaseUrl + "/api/events?page=" + page + "&size=" + size;
+
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token.trim());
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
-            ResponseEntity<List<ResponseEventDTO>> response = restTemplate.exchange(
+            ResponseEntity<PaginatedResponseEventDTO> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     entity,
-                    new ParameterizedTypeReference<List<ResponseEventDTO>>() {}
+                    new ParameterizedTypeReference<PaginatedResponseEventDTO>() {}
             );
 
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                return response.getBody().stream()
+                PaginatedResponseEventDTO body = response.getBody();
+                List<Event> events = body.getContent().stream()
                         .map(this::fromDTO)
                         .collect(Collectors.toList());
+
+                return new PaginatedEvent(events, body.getTotalPages(), body.getNumber());
             } else {
                 throw new RuntimeException("Error al obtener los eventos: " + response.getStatusCode());
             }
@@ -88,7 +94,6 @@ public class EventService {
             throw new RuntimeException("Error al obtener el evento: " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
         }
     }
-
 
 
     public void addEvent(String token, Event event, Long userId) {
@@ -238,10 +243,8 @@ public class EventService {
         }
     }
 
-
-
     //METHODS AUX
-     private Event fromDTO(ResponseEventDTO dto) {
+    private Event fromDTO(ResponseEventDTO dto) {
         if (dto == null) return null;
 
         Event event = new Event();
@@ -269,19 +272,19 @@ public class EventService {
             event.setUser(user);
         }
 
-         if (dto.getMarkets() != null) {
-             event.setMarketList(
-                     dto.getMarkets().stream()
-                             .map(market -> {
-                                 Market m = new Market();
-                                 m.setId(market.getId());
-                                 m.setQuestion(market.getQuestion());
-                                 return m;
-                             })
-                             .collect(Collectors.toList())
-             );
-         }
+        if (dto.getMarkets() != null) {
+            event.setMarketList(
+                    dto.getMarkets().stream()
+                            .map(market -> {
+                                Market m = new Market();
+                                m.setId(market.getId());
+                                m.setQuestion(market.getQuestion());
+                                return m;
+                            })
+                            .collect(Collectors.toList())
+            );
+        }
 
-         return event;
+        return event;
     }
 }

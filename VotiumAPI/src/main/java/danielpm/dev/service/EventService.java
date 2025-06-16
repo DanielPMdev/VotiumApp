@@ -1,6 +1,7 @@
 package danielpm.dev.service;
 
 import danielpm.dev.entity.Event;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,7 +18,7 @@ public interface EventService {
     void closeExpiredEvents();
 
     //Methods retrive
-    List<Event> getAllEvents();
+    Page<Event> getAllEvents(int page, int size);
 
     Optional<Event> getEventById(Long id);
 

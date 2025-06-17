@@ -1,6 +1,7 @@
 package danielpm.dev.service;
 
 import danielpm.dev.entity.User;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +13,7 @@ public interface UserService {
     boolean existsById(Long id);
 
     //Methods retrive
-    List<User> getAllUsers();
+    Page<User> getAllUsers(int page, int size);
 
     Optional<User> getUserById(Long id);
     Optional<User> getUserByEmail(String email);

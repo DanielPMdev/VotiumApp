@@ -83,6 +83,50 @@
                 </div>
             </div>
         </div>
+
+        <!-- Pagination -->
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center gap-2">
+                <!-- First button -->
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                    <a class="btn btn-outline-secondary btn-md fw-bold rounded-pill"
+                       th:href="${currentPage > 0} ? @{/admin/users(page=0, size=${size})} : '#'"
+                       th:style="${currentPage == 0} ? 'opacity: 0.65; cursor: not-allowed;' : ''">«</a>
+                </li>
+
+                <!-- Previous button -->
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                    <a class="btn btn-outline-secondary btn-md fw-bold rounded-pill"
+                       th:href="${currentPage > 0} ? @{/admin/users(page=${currentPage - 1}, size=${size})} : '#'"
+                       th:style="${currentPage == 0} ? 'opacity: 0.65; cursor: not-allowed;' : ''">‹</a>
+                </li>
+
+                <!-- Numbered pages -->
+                <li class="page-item"
+                    th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                    th:classappend="${pageNum == currentPage} ? 'active'">
+                    <a class="btn btn-md fw-bold rounded-pill"
+                       th:classappend="${pageNum == currentPage} ? 'btn-warning text-dark' : 'btn-outline-secondary'"
+                       th:href="@{/admin/users(page=${pageNum}, size=${size})}"
+                       th:text="${pageNum + 1}">1</a>
+                </li>
+
+                <!-- Next button -->
+                <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
+                    <a class="btn btn-outline-secondary btn-md fw-bold rounded-pill"
+                       th:href="${currentPage < totalPages - 1} ? @{/admin/users(page=${currentPage + 1}, size=${size})} : '#'"
+                       th:style="${currentPage >= totalPages - 1} ? 'opacity: 0.65; cursor: not-allowed;' : ''">›</a>
+                </li>
+
+                <!-- Last button -->
+                <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
+                    <a class="btn btn-outline-secondary btn-md fw-bold rounded-pill"
+                       th:href="${currentPage < totalPages - 1} ? @{/admin/users(page=${totalPages - 1}, size=${size})} : '#'"
+                       th:style="${currentPage >= totalPages - 1} ? 'opacity: 0.65; cursor: not-allowed;' : ''">»</a>
+                </li>
+            </ul>
+        </nav>
+
     </div>
 </section>
 

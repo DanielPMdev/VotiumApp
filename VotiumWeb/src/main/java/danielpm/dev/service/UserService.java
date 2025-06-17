@@ -1,6 +1,8 @@
 package danielpm.dev.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import danielpm.dev.dto.response.user.PaginatedResponseUserDTO;
+import danielpm.dev.dto.response.user.PaginatedUser;
 import danielpm.dev.model.Category;
 import danielpm.dev.model.User;
 import io.jsonwebtoken.Claims;
@@ -120,18 +122,28 @@ public class UserService {
         }
     }
 
-    public List<User> getAllUsers(String token) {
-        String url = apiBaseUrl + "/api/users";
+    public PaginatedUser getAllUsers(String token, int page, int size) {
+        String url = apiBaseUrl + "/api/users?page=" + page + "&size=" + size;
+
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token.trim());
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
-            ResponseEntity<List<User>> response = restTemplate.exchange(url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<User>>() {});
-            if (response.getStatusCode() == HttpStatus.OK) {
-                return response.getBody();
+            ResponseEntity<PaginatedResponseUserDTO> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    new ParameterizedTypeReference<PaginatedResponseUserDTO>() {}
+            );
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                PaginatedResponseUserDTO body = response.getBody();
+                List<User> users = body.getContent(); // Si necesitas mapear a un DTO específico, lo haces aquí
+
+                return new PaginatedUser(users, body.getTotalPages(), body.getNumber());
             } else {
-                throw new RuntimeException("Error al obtener los usuarios " + response.getStatusCode());
+                throw new RuntimeException("Error al obtener los usuarios: " + response.getStatusCode());
             }
         } catch (HttpClientErrorException e) {
             throw new RuntimeException("Error al obtener los usuarios: " + e.getStatusCode() + " - " + e.getResponseBodyAsString());

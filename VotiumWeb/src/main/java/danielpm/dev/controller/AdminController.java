@@ -1,5 +1,6 @@
 package danielpm.dev.controller;
 
+import danielpm.dev.dto.response.user.PaginatedUser;
 import danielpm.dev.model.Category;
 import danielpm.dev.model.Role;
 import danielpm.dev.model.User;
@@ -120,15 +121,28 @@ public class AdminController {
 
     /* Users */
     @GetMapping("/admin/users")
-    public String showUsers(Model model, HttpSession session) {
+    public String showUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size,
+            Model model, HttpSession session
+    ) {
         String token = (String) session.getAttribute("jwtToken");
-        Boolean isAuthenticated = token != null && !token.isEmpty();
+        boolean isAuthenticated = token != null && !token.isEmpty();
 
         if (!isAuthenticated || !permissionService.isAdmin(token)) {
             return "redirect:/";
         }
 
-        model.addAttribute("users", userService.getAllUsers(token));
+        try {
+            PaginatedUser paginated = userService.getAllUsers(token, page, size);
+            model.addAttribute("users", paginated.getUsers());
+            model.addAttribute("totalPages", paginated.getTotalPages());
+            model.addAttribute("currentPage", paginated.getCurrentPage());
+            model.addAttribute("size", size); // para mantener el tamaño entre páginas
+        } catch (Exception e) {
+            model.addAttribute("error", "Error al cargar los usuarios: " + e.getMessage());
+        }
+
         model.addAttribute("authenticated", isAuthenticated);
         model.addAttribute("admin", true);
         return "admin/user/users";

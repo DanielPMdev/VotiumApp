@@ -59,6 +59,7 @@ public class EventController {
                 model.addAttribute("events", paginated.getEvents());
                 model.addAttribute("totalPages", paginated.getTotalPages());
                 model.addAttribute("currentPage", paginated.getCurrentPage());
+                model.addAttribute("size", size);
                 return "event/events";
             } catch (Exception e) {
                 model.addAttribute("error", "Error al cargar los eventos: " + e.getMessage());

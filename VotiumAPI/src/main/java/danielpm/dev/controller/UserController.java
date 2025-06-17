@@ -4,9 +4,11 @@ import danielpm.dev.dto.request.image.ImageUpdateRequest;
 import danielpm.dev.dto.request.user.ChangeUserDTO;
 import danielpm.dev.dto.request.user.FullUserDTO;
 import danielpm.dev.dto.request.user.PasswordUserDTO;
+import danielpm.dev.dto.response.user.PaginatedResponseUserDTO;
 import danielpm.dev.entity.*;
 import danielpm.dev.service.PasswordResetTokenService;
 import danielpm.dev.service.UserService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,13 +36,15 @@ public class UserController {
         GET http://localhost:8080/api/users
      */
     @GetMapping("/users")
-    public ResponseEntity<List<User>> findAll() {
-        List<User> userList = userService.getAllUsers();
-        if (userList.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(userList);
+    public ResponseEntity<PaginatedResponseUserDTO> findAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+
+        Page<User> userPage = userService.getAllUsers(page, size);
+
+        return ResponseEntity.ok(new PaginatedResponseUserDTO(userPage));
     }
+
 
     /*
         GET http://localhost:8080/api/user/7
